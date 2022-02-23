@@ -28,12 +28,12 @@ getwd()
 #set your working directory: 
 #Note: if you are copying directory straight from file directory: you have to change "\" to "/"
 
-setwd()
+setwd("C:/Users/fatemah.torabi/OneDrive - Swansea University/FATEMEH/PROJECTS-git/R-TrainingMaterials/R-intro")
 
 ###################################################
 
 #replace the file directory with where you placed the data sheet in:
-Data <- read_excel("C:/Users/fatemah.torabi/Desktop/Data-R/Data.xls")
+Data <- read_excel("C:/Users/fatemah.torabi/OneDrive - Swansea University/FATEMEH/PROJECTS-git/R-TrainingMaterials/R-intro/Data.xls")
 
 #look at the data table and variables 
 View(Data)
@@ -88,9 +88,11 @@ Data$Education <- replace(Data$Education, Data$Education==12 , "Other")
 table(Data$Education)
 
 #removing first column
-Data.cut<-Data[,3:10]
+Data.cut <- Data[,3:10]
+
 view(Data.cut)
 Data.cut$Sex<-as.factor(Data.cut$Sex)
+
 tableOne<-tableby(Sex ~., data=Data.cut)
 
 summary(tableOne)
@@ -125,13 +127,13 @@ pie+theme_void()
 #editing chart labling and colours
 pie+theme_void()+
   scale_fill_manual(values=c("#58A4B0","#F3C178"))+
-  geom_text(y=c(30,20),label=percent(GenderData$percent/100),size=5, hjust=0.5,vjust=-8)
+  geom_text(y=c(30,20),label=(GenderData$percent/100),size=5, hjust=0.5,vjust=-8)
 
 #add the labels outside chart:
 
 pie+theme_void()+
   scale_fill_manual(values=c("#58A4B0","#F3C178"))+
-  geom_label_repel(y=c(30,20),aes(label = percent(GenderData$percent/100)), size=5, show.legend = F, nudge_x = 1) 
+  geom_label_repel(y=c(30,20),aes(label = (GenderData$percent/100)), size=5, show.legend = F, nudge_x = 1) 
 
 
 ##########################################################
@@ -203,11 +205,16 @@ AnalyseData<- gather(Data, ST_SEQ, ST, -`Pt no.`)
 
 ##visulasing:
 
+ST.boxplot <- 
 ggboxplot(AnalyseData, x = "ST_SEQ", y = "ST", 
           color = "ST_SEQ", palette = c("#00AFBB", "#E7B800"),
           order = c("ST1", "ST2"),
           ylab = "compeletion time", xlab = "ST1:Before mindfulness ST2: after mindfulness")
 
+ST.boxplot
+#save the graph: 
+#NOTE: it will be saved on where you set your directory at the start on line 31 of this code
+ggsave(filename="Box_plot.png", plot=ST.boxplot, device="png", height=15, width=20, units="cm", dpi = 100)
 
 ############################################################
 ##compare mean of compeletion time before and after mindfulness session 
@@ -217,3 +224,10 @@ aov<-aov(ST ~ ST_SEQ, data=AnalyseData)
 
 summary(aov)
 
+clean.output <- tidy(aov, conf.int= TRUE, exponentiate=TRUE)
+
+#write your output as csv file so you can copy it into your research report
+#NOTE: it will be saved on where you set your directory at the start on line 31 of this code
+
+clean.output %>% 
+write_csv(file="anova_output.csv")
